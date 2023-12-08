@@ -40,6 +40,11 @@ struct RevealSet {
 // Current impl is 1.
 
 fn main() {
+    // part1();
+    part2();
+}
+
+fn part1() {
     // TODO: take these as arguments?
     //  Perhaps a file mapping color to max counts
     //  Otherwise its not so flexible to add new colors
@@ -65,6 +70,36 @@ fn main() {
     }
 
     println!("{}", valid_id_total);
+}
+
+fn part2() {
+    let mut power_total = 0;
+
+    'games: for line in stdin().lines() {
+        // println!("{}", &line.as_ref().unwrap());
+        let game = parse_game(&line.unwrap());
+        // println!("{:#?}", game);
+
+        // find max for each color across each reveal for this game
+        let mut max_red = 0;
+        let mut max_green = 0;
+        let mut max_blue = 0;
+        for reveal in game.reveal_sets {
+            if reveal.green > max_green {
+                max_green = reveal.green;
+            }
+            if reveal.red > max_red {
+                max_red = reveal.red;
+            }
+            if reveal.blue > max_blue {
+                max_blue = reveal.blue;
+            }
+        }
+
+        power_total += max_red * max_green * max_blue;
+    }
+
+    println!("{}", power_total);
 }
 
 fn parse_game(text: &str) -> Game {
