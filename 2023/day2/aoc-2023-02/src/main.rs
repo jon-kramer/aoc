@@ -1,4 +1,6 @@
-use std::{io::stdin, u32};
+use std::{collections::HashMap, io::stdin, u32};
+
+use regex::Regex;
 
 #[derive(Debug)]
 struct Game {
@@ -41,7 +43,8 @@ struct RevealSet {
 
 fn main() {
     // part1();
-    part2();
+    // part2();
+    part3();
 }
 
 fn part1() {
@@ -55,9 +58,9 @@ fn part1() {
     let mut valid_id_total = 0;
 
     'games: for line in stdin().lines() {
-        println!("{}", &line.as_ref().unwrap());
+        // println!("{}", &line.as_ref().unwrap());
         let game = parse_game(&line.unwrap());
-        println!("{:#?}", game);
+        // println!("{:#?}", game);
         // check each reveal
         for reveal in game.reveal_sets {
             if reveal.green > green_total || reveal.red > red_total || reveal.blue > blue_total {
@@ -75,7 +78,7 @@ fn part1() {
 fn part2() {
     let mut power_total = 0;
 
-    'games: for line in stdin().lines() {
+    for line in stdin().lines() {
         // println!("{}", &line.as_ref().unwrap());
         let game = parse_game(&line.unwrap());
         // println!("{:#?}", game);
@@ -100,6 +103,45 @@ fn part2() {
     }
 
     println!("{}", power_total);
+}
+
+fn part3() {
+    let mut power_total = 0;
+
+    for line in stdin().lines() {
+        let color_count_map = parse_game_to_color_counts(&line.unwrap());
+
+        power_total += color_count_map["green"] * color_count_map["red"] * color_count_map["blue"];
+    }
+
+    println!("{}", power_total);
+}
+
+// Regex time to parse game
+// The individial reveals don't matter, instead just find all matching
+// count-color segments and throw into a list
+// Then turn the list into a map, where as we collect and find color
+// key conflicts, we resolve by always taking the max count.
+// These max values for each color can then be easily used to solve part 1 or 2.
+fn parse_game_to_color_counts(text: &str) -> HashMap<String, u32> {
+    let pattern = r"(\d+) (blue|red|green)";
+    let re = Regex::new(pattern).expect("Failed to compile regex");
+
+    let color_count_map = re
+        .captures_iter(text)
+        .fold(HashMap::new(), |mut map, captures| {
+            let count = captures[1].parse::<u32>().unwrap();
+            let color = captures[2].to_string();
+            map.entry(color)
+                .and_modify(|existing| {
+                    if *existing < count {
+                        *existing = count
+                    }
+                })
+                .or_insert(count);
+            map
+        });
+    color_count_map
 }
 
 fn parse_game(text: &str) -> Game {
