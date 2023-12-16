@@ -128,17 +128,15 @@ where
     for card in cards.iter() {
         // let card_count = *card_map.get(&card.id).unwrap();
         let card_count = card_counts[(card.id - 1) as usize];
-        // println!("Card {:?} with count {}", card, card_count);
-        (0..card_count).for_each(|_c| {
-            for count in 1..=card.matches {
-                let card_id_to_replicate = (card.id + count) as usize;
-                // println!("Increment card id: {}", card_id_to_replicate);
-                card_counts[card_id_to_replicate - 1] += 1;
-                // card_map
-                //     .entry(card_id_to_replicate)
-                //     .and_modify(|count| *count += 1);
-            }
-        });
+        println!("Card {:?} with count {}", card, card_count);
+        for count in 1..=card.matches {
+            let card_id_to_replicate = (card.id + count) as usize;
+            // println!("Increment card id: {}", card_id_to_replicate);
+            card_counts[card_id_to_replicate - 1] += card_count;
+            // card_map
+            //     .entry(card_id_to_replicate)
+            //     .and_modify(|count| *count += 1);
+        }
     }
 
     // card_map.iter().map(|e| e.1).sum()
